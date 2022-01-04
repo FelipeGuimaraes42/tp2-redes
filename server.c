@@ -1,8 +1,16 @@
 #include "common.h"
 
 int main(int argc, char **argv){
+  if(argc != 3){
+    usage(TRUE, argv);
+  }
 
-  int port = atoi(argv[1]);
+  struct sockaddr_storage storage;
+  if (serverSockaddrInit(argv[1], argv[2], &storage) != 0) {
+      usage(TRUE, argv);
+  }
+
+  int port = atoi(argv[2]);
   int sockfd;
   struct sockaddr_in si_me, si_other;
   char buffer[BUFFER_SIZE];

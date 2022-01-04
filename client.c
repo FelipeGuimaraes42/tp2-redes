@@ -1,8 +1,16 @@
 #include "common.h"
 
 int main(int argc, char **argv){
+  if(argc != 4) {
+    usage(FALSE, argv);
+  }
 
-  int port = atoi(argv[1]);
+  struct sockaddr_storage storage;
+  if (addrParse(argv[1], argv[2], &storage) != 0) {
+      usage(FALSE, argv);
+  }
+
+  int port = atoi(argv[2]);
   int sockfd;
   struct sockaddr_in serverAddr;
   char buffer[BUFFER_SIZE];
