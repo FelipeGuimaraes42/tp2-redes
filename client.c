@@ -10,21 +10,25 @@ int main(int argc, char **argv){
       usage(FALSE, argv);
   }
 
-  int port = atoi(argv[2]);
-  int sockfd;
-  struct sockaddr_in serverAddr;
+  if(strcmp(argv[3], "start") != 0){
+    logExit("wrong initialization keyword.");
+  }
+
   char buffer[BUFFER_SIZE];
-  //socklen_t addr_size;
 
-  sockfd = socket(PF_INET, SOCK_DGRAM, 0);
-  memset(&serverAddr, '\0', sizeof(serverAddr));
+  int sockfd;
+  sockfd = socket(storage.ss_family, SOCK_DGRAM, 0);
+  if (sockfd == -1) {
+      logExit("socket");
+  }
 
-  serverAddr.sin_family = AF_INET;
-  serverAddr.sin_port = htons(port);
-  serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+  struct sockaddr *addr = (struct sockaddr *)(&storage);
+
+  char addrStr[BUFFER_SIZE];
+  addrToStr(addr, addrStr, BUFFER_SIZE);
 
   strcpy(buffer, "Hello Server\n");
-  sendto(sockfd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&serverAddr, sizeof(serverAddr));
+  sendto(sockfd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&addr, sizeof(addr));
   printf("[+]Data Send: %s", buffer);
 
   return 0;
