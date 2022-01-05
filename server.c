@@ -28,12 +28,19 @@ int main(int argc, char **argv){
       logExit("bind");
   }
 
+  char addrStr[BUFFER_SIZE];
+  addrToStr(addr, addrStr, BUFFER_SIZE);
+
   struct sockaddr *clientAddr;
   memset(&clientAddr, 0, sizeof(clientAddr));
+
+  printf("%s\n", addrStr);
 
   socklen_t addr_size = sizeof(clientAddr);
   recvfrom(sockfd, buffer, BUFFER_SIZE, 0, (struct sockaddr*)& clientAddr, &addr_size);
   printf("[+]Data Received: %s", buffer);
+
+  close(sockfd);
 
   return 0;
 

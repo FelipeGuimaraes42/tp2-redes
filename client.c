@@ -27,9 +27,13 @@ int main(int argc, char **argv){
   char addrStr[BUFFER_SIZE];
   addrToStr(addr, addrStr, BUFFER_SIZE);
 
+  printf("%s\n", addrStr);
+
   strcpy(buffer, "Hello Server\n");
   sendto(sockfd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&addr, sizeof(addr));
   printf("[+]Data Send: %s", buffer);
+
+  close(sockfd);
 
   return 0;
 }
