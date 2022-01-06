@@ -5,19 +5,16 @@ int main(int argc, char **argv){
     usage(FALSE, argv);
   }
 
+  if(strcmp(argv[3], "start") != 0){
+    logExit("wrong initialization keyword.");
+  }
+
   struct sockaddr_storage storage;
   if (addrParse(argv[1], argv[2], &storage) != 0) {
       usage(FALSE, argv);
   }
 
-  if(strcmp(argv[3], "start") != 0){
-    logExit("wrong initialization keyword.");
-  }
-
-  char buffer[BUFFER_SIZE];
-
-  int sockfd;
-  sockfd = socket(storage.ss_family, SOCK_DGRAM, 0);
+  int sockfd = socket(storage.ss_family, SOCK_DGRAM, 0);
   if (sockfd == -1) {
       logExit("socket");
   }
@@ -26,11 +23,12 @@ int main(int argc, char **argv){
 
   char addrStr[BUFFER_SIZE];
   addrToStr(addr, addrStr, BUFFER_SIZE);
-
   printf("%s\n", addrStr);
 
+  char buffer[BUFFER_SIZE];
+
   strcpy(buffer, "Hello Server\n");
-  sendto(sockfd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&addr, sizeof(addr));
+  sendto(sockfd, buffer, strlen(buffer), 0, addr, sizeof(struct sockaddr_storage));
   printf("[+]Data Send: %s", buffer);
 
   close(sockfd);

@@ -10,10 +10,7 @@ int main(int argc, char **argv){
     usage(TRUE, argv);
   }
 
-  char buffer[BUFFER_SIZE];
-
-  int sockfd;
-  sockfd = socket(storage.ss_family, SOCK_DGRAM, 0);
+  int sockfd = socket(storage.ss_family, SOCK_DGRAM, 0);
   if (sockfd == -1) {
       logExit("socket");
   }
@@ -23,25 +20,26 @@ int main(int argc, char **argv){
       logExit("setsockopt");
   }
 
-  struct sockaddr *addr = (struct sockaddr *)(&storage);
-  if (0 != bind(sockfd, addr, sizeof(storage))) {
+  struct sockaddr *serverAddr = (struct sockaddr *)(&storage);
+  if (bind(sockfd, serverAddr, sizeof(storage)) != 0) {
       logExit("bind");
   }
 
   char addrStr[BUFFER_SIZE];
-  addrToStr(addr, addrStr, BUFFER_SIZE);
-
-  struct sockaddr *clientAddr;
-  memset(&clientAddr, 0, sizeof(clientAddr));
-
+  addrToStr(serverAddr, addrStr, BUFFER_SIZE);
   printf("%s\n", addrStr);
 
-  socklen_t addr_size = sizeof(clientAddr);
-  recvfrom(sockfd, buffer, BUFFER_SIZE, 0, (struct sockaddr*)& clientAddr, &addr_size);
+  struct sockaddr_storage clientStorage;
+	struct sockaddr *clientAddr;
+	clientAddr = (struct sockaddr *) &clientStorage;
+	socklen_t clientAddrSize = sizeof(struct sockaddr);
+
+  char buffer[BUFFER_SIZE];
+
+  recvfrom(sockfd, buffer, BUFFER_SIZE, 0, clientAddr, &clientAddrSize);
   printf("[+]Data Received: %s", buffer);
 
   close(sockfd);
 
   return 0;
-
 }
