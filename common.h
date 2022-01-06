@@ -24,7 +24,13 @@ int addrParse(const char *addrStr, const char *portStr,
 
 void addrToStr(const struct sockaddr *addr, char *str, size_t strSize);
 
-int serverSockaddrInit(const char *proto, const char *portStr,
-                         struct sockaddr_storage *storage);
+int serverSockaddrInit(const char *protocol, const char *portStr,
+                       struct sockaddr_storage *storage);
+
+void reverse(char *, int);
+
+char *itoa(int, char*, int);
+
+int createServerSocket(char *protocol, char *port);
 
 #endif

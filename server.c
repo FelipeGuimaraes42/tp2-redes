@@ -5,29 +5,25 @@ int main(int argc, char **argv){
     usage(TRUE, argv);
   }
 
-  struct sockaddr_storage storage;
-  if (serverSockaddrInit(argv[1], argv[2], &storage) != 0) {
-    usage(TRUE, argv);
-  }
+  char *protocol = argv[1];
+  int port = atoi(argv[2]);
 
-  int sockfd = socket(storage.ss_family, SOCK_DGRAM, 0);
-  if (sockfd == -1) {
-      logExit("socket");
-  }
+  int ports[4] = {0};
 
-  int enable = 1;
-  if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) != 0) {
-      logExit("setsockopt");
+  for(int i = 0; i < 4; i++) {
+    ports[i] = port + i;
+    printf("%d  ", ports[i]);
   }
+  printf("\n");
 
-  struct sockaddr *serverAddr = (struct sockaddr *)(&storage);
-  if (bind(sockfd, serverAddr, sizeof(storage)) != 0) {
-      logExit("bind");
+  int sockets[4];
+
+  for(int i = 0; i < 4; i++) {
+    char *strPort = itoa(ports[i], strPort, 10);
+    printf("%s  ", strPort);
+    sockets[i] = createServerSocket(protocol, strPort);
   }
-
-  char addrStr[BUFFER_SIZE];
-  addrToStr(serverAddr, addrStr, BUFFER_SIZE);
-  printf("%s\n", addrStr);
+    printf("\n");
 
   struct sockaddr_storage clientStorage;
 	struct sockaddr *clientAddr;
@@ -36,10 +32,19 @@ int main(int argc, char **argv){
 
   char buffer[BUFFER_SIZE];
 
-  recvfrom(sockfd, buffer, BUFFER_SIZE, 0, clientAddr, &clientAddrSize);
+  // for(int i = 0; i < 4; i++) {
+  //   recvfrom(sockets[i], buffer, BUFFER_SIZE, 0, clientAddr, &clientAddrSize);
+  //   printf("[+]Data Received: %s, into server %d", buffer, i); 
+  // }
+
+  recvfrom(sockets[0], buffer, BUFFER_SIZE, 0, clientAddr, &clientAddrSize);
   printf("[+]Data Received: %s", buffer);
 
-  close(sockfd);
+
+
+  for(int i =0; i < 4; i++) {
+    close(sockets[i]);
+  }
 
   return 0;
 }
