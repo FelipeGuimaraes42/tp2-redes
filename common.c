@@ -140,8 +140,7 @@ void reverse(char str[], int length)
 	int end = length - 1;
 	while (start < end)
 	{
-		char *temp;
-		temp = *(str + start);
+		char temp = *(str + start);
 		*(str + start) = *(str + end);
 		*(str + end) = temp;
 		start++;
@@ -185,7 +184,7 @@ int createServerSocket(char *protocol, char *port)
 	struct sockaddr_storage storage;
 	if (serverSockaddrInit(protocol, port, &storage) != 0)
 	{
-		usage(TRUE, "./server");
+		logExit("wrong params");
 	}
 
 	int sockfd = socket(storage.ss_family, SOCK_DGRAM, 0);

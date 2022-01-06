@@ -38,7 +38,7 @@ int main(int argc, char **argv){
   // }
 
   recvfrom(sockets[0], buffer, BUFFER_SIZE, 0, clientAddr, &clientAddrSize);
-  printf("[+]Data Received: %s", buffer);
+  printf("[+]Data Received: %s\n", buffer);
 
 
 
