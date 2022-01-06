@@ -7,27 +7,39 @@ int main(int argc, char **argv){
 
   struct sockaddr_storage storage;
   if (serverSockaddrInit(argv[1], argv[2], &storage) != 0) {
-      usage(TRUE, argv);
+    usage(TRUE, argv);
   }
 
-  int port = atoi(argv[2]);
-  int sockfd;
-  struct sockaddr_in si_me, si_other;
+  int sockfd = socket(storage.ss_family, SOCK_DGRAM, 0);
+  if (sockfd == -1) {
+      logExit("socket");
+  }
+
+  int enable = 1;
+  if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) != 0) {
+      logExit("setsockopt");
+  }
+
+  struct sockaddr *serverAddr = (struct sockaddr *)(&storage);
+  if (bind(sockfd, serverAddr, sizeof(storage)) != 0) {
+      logExit("bind");
+  }
+
+  char addrStr[BUFFER_SIZE];
+  addrToStr(serverAddr, addrStr, BUFFER_SIZE);
+  printf("%s\n", addrStr);
+
+  struct sockaddr_storage clientStorage;
+	struct sockaddr *clientAddr;
+	clientAddr = (struct sockaddr *) &clientStorage;
+	socklen_t clientAddrSize = sizeof(struct sockaddr);
+
   char buffer[BUFFER_SIZE];
-  socklen_t addr_size;
 
-  sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-
-  memset(&si_me, '\0', sizeof(si_me));
-  si_me.sin_family = AF_INET;
-  si_me.sin_port = htons(port);
-  si_me.sin_addr.s_addr = inet_addr("127.0.0.1");
-
-  bind(sockfd, (struct sockaddr*)&si_me, sizeof(si_me));
-  addr_size = sizeof(si_other);
-  recvfrom(sockfd, buffer, BUFFER_SIZE, 0, (struct sockaddr*)& si_other, &addr_size);
+  recvfrom(sockfd, buffer, BUFFER_SIZE, 0, clientAddr, &clientAddrSize);
   printf("[+]Data Received: %s", buffer);
 
-  return 0;
+  close(sockfd);
 
+  return 0;
 }

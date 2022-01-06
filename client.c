@@ -5,27 +5,33 @@ int main(int argc, char **argv){
     usage(FALSE, argv);
   }
 
+  if(strcmp(argv[3], "start") != 0){
+    logExit("wrong initialization keyword.");
+  }
+
   struct sockaddr_storage storage;
   if (addrParse(argv[1], argv[2], &storage) != 0) {
       usage(FALSE, argv);
   }
 
-  int port = atoi(argv[2]);
-  int sockfd;
-  struct sockaddr_in serverAddr;
+  int sockfd = socket(storage.ss_family, SOCK_DGRAM, 0);
+  if (sockfd == -1) {
+      logExit("socket");
+  }
+
+  struct sockaddr *addr = (struct sockaddr *)(&storage);
+
+  char addrStr[BUFFER_SIZE];
+  addrToStr(addr, addrStr, BUFFER_SIZE);
+  printf("%s\n", addrStr);
+
   char buffer[BUFFER_SIZE];
-  //socklen_t addr_size;
-
-  sockfd = socket(PF_INET, SOCK_DGRAM, 0);
-  memset(&serverAddr, '\0', sizeof(serverAddr));
-
-  serverAddr.sin_family = AF_INET;
-  serverAddr.sin_port = htons(port);
-  serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
   strcpy(buffer, "Hello Server\n");
-  sendto(sockfd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&serverAddr, sizeof(serverAddr));
+  sendto(sockfd, buffer, strlen(buffer), 0, addr, sizeof(struct sockaddr_storage));
   printf("[+]Data Send: %s", buffer);
+
+  close(sockfd);
 
   return 0;
 }
