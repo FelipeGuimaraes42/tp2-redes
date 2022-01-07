@@ -20,6 +20,7 @@ int main(int argc, char **argv)
   //printf("\n");
 
   int sockets[4];
+  //struct sockaddr *serverAddr[4];
 
   for (int i = 0; i < 4; i++)
   {
@@ -32,29 +33,40 @@ int main(int argc, char **argv)
   struct sockaddr_storage clientStorage;
   struct sockaddr *clientAddr;
   clientAddr = (struct sockaddr *)&clientStorage;
-  socklen_t clientAddrSize = sizeof(struct sockaddr);
+  socklen_t addrSize = sizeof(struct sockaddr);
+  socklen_t storageSize = sizeof(struct sockaddr_storage);
 
   char buffer[BUFFER_SIZE];
 
-  // for(int i = 0; i < 4; i++) {
-  //   recvfrom(sockets[i], buffer, BUFFER_SIZE, 0, clientAddr, &clientAddrSize);
-  //   printf("[+]Data Received: %s, into server %d", buffer, i);
-  // }
-
   memset(clientAddr, 0, sizeof(clientStorage));
 
-  int count = recvfrom(sockets[0], buffer, BUFFER_SIZE, 0, clientAddr, &clientAddrSize);
+  int count = recvfrom(sockets[0], buffer, BUFFER_SIZE, 0, clientAddr, &addrSize);
   if (count == 0)
   {
     logExit("empty message");
   }
-  printf("[+]Data Received: %s\n", buffer);
+  printf("[+]Data Received: %s by server %d\n", buffer, ports[0]);
+
+  // for (int i = 1; i < 4; i++)
+  // {
+  //   int count = sendto(sockets[i], buffer, strlen(buffer), 0, clientAddr, storageSize);
+  //   if (count != strlen(buffer))
+  //   {
+  //     logExit("send");
+  //   }
+  //   count = recvfrom(sockets[i], buffer, BUFFER_SIZE, 0, clientAddr, &addrSize);
+  //   if (count == 0)
+  //   {
+  //     logExit("empty message");
+  //   }
+  //   printf("[+]Data Received: %s by server %d\n", buffer, ports[i]);
+  // }
 
   while (1)
   {
     memset(clientAddr, 0, sizeof(clientStorage));
 
-    int count = recvfrom(sockets[0], buffer, BUFFER_SIZE, 0, clientAddr, &clientAddrSize);
+    int count = recvfrom(sockets[0], buffer, BUFFER_SIZE, 0, clientAddr, &addrSize);
     if (count == 0)
     {
       logExit("empty message");
