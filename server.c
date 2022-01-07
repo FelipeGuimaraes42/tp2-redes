@@ -65,6 +65,7 @@ int main(int argc, char **argv)
   while (1)
   {
     memset(clientAddr, 0, sizeof(clientStorage));
+    memset(buffer, 0, BUFFER_SIZE);
 
     int count = recvfrom(sockets[0], buffer, BUFFER_SIZE, 0, clientAddr, &addrSize);
     if (count == 0)
@@ -79,6 +80,14 @@ int main(int argc, char **argv)
     }
 
     memset(buffer, 0, BUFFER_SIZE);
+
+    strcpy(buffer, "initiated server 1\n");
+    count = sendto(sockets[0], buffer, sizeof(buffer), 0, clientAddr, addrSize);
+    // if (count != strlen(buffer))
+    // {
+    //   logExit("send");
+    // }
+
   }
 
   for (int i = 0; i < 4; i++)
