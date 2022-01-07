@@ -23,7 +23,7 @@ void usage(int option, char **argv)
 }
 
 int addrParse(const char *addrStr, const char *portStr,
-							struct sockaddr_storage *storage)
+			  struct sockaddr_storage *storage)
 {
 	if (addrStr == NULL || portStr == NULL)
 	{
@@ -72,7 +72,7 @@ void addrToStr(const struct sockaddr *addr, char *str, size_t strSize)
 		version = 4;
 		struct sockaddr_in *addr4 = (struct sockaddr_in *)addr;
 		if (!inet_ntop(AF_INET, &(addr4->sin_addr), addrStr,
-									 INET6_ADDRSTRLEN + 1))
+					   INET6_ADDRSTRLEN + 1))
 		{
 			logExit("ntop");
 		}
@@ -83,7 +83,7 @@ void addrToStr(const struct sockaddr *addr, char *str, size_t strSize)
 		version = 6;
 		struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *)addr;
 		if (!inet_ntop(AF_INET6, &(addr6->sin6_addr), addrStr,
-									 INET6_ADDRSTRLEN + 1))
+					   INET6_ADDRSTRLEN + 1))
 		{
 			logExit("ntop");
 		}
@@ -100,7 +100,7 @@ void addrToStr(const struct sockaddr *addr, char *str, size_t strSize)
 }
 
 int serverSockaddrInit(const char *proto, const char *portStr,
-											 struct sockaddr_storage *storage)
+					   struct sockaddr_storage *storage)
 {
 	uint16_t port = (uint16_t)atoi(portStr); // unsigned short
 	if (port == 0)

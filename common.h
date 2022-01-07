@@ -29,7 +29,7 @@ int serverSockaddrInit(const char *protocol, const char *portStr,
 
 void reverse(char *, int);
 
-char *itoa(int, char*, int);
+char *itoa(int, char *, int);
 
 int createServerSocket(char *protocol, char *port);
 
