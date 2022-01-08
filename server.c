@@ -80,6 +80,12 @@ int main(int argc, char **argv)
     {
       break;
     }
+    if (strcasecmp(buffer, "getdefenders\n") == 0){
+      memset(buffer, 0, BUFFER_SIZE);
+      strcpy(buffer, "[[1, 0], [3, 0], [4, 1], [2, 2], [3, 3], [4, 4]]");
+      printf("%s\n", buffer);
+      sendto(sockets[3], buffer, sizeof(buffer), 0, clientAddr, storageSize);
+    }
   }
 
   for (int i = 0; i < 4; i++)

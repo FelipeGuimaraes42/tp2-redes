@@ -70,6 +70,15 @@ int main(int argc, char **argv)
     {
       break;
     }
+    if (strcasecmp(buffer, "getdefenders\n") == 0)
+    {
+      int count = recvfrom(clientSock, buffer, BUFFER_SIZE, 0, addr, &addrSize);
+      if (count == 0)
+      {
+        break;
+      }
+      printf("%s\n", buffer);
+    }
   }
 
   close(clientSock);
