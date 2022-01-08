@@ -40,6 +40,20 @@ int main(int argc, char **argv)
   socklen_t addrSize = sizeof(struct sockaddr);
   socklen_t storageSize = sizeof(struct sockaddr_storage);
 
+  int response = 1;
+  while (response < 5)
+  {
+    memset(buffer, 0, BUFFER_SIZE);
+
+    int count = recvfrom(clientSock, buffer, BUFFER_SIZE, 0, addr, &addrSize);
+    if (count == 0)
+    {
+      break;
+    }
+    printf("%s %d\n", buffer, response);
+    response++;
+  }
+
   while (1)
   {
     memset(buffer, 0, BUFFER_SIZE);
@@ -52,19 +66,10 @@ int main(int argc, char **argv)
     {
       logExit("send");
     }
-    if (strcasecmp(buffer, "kill\n") == 0)
+    if (strcasecmp(buffer, "quit\n") == 0)
     {
       break;
     }
-    
-    memset(buffer, 0, BUFFER_SIZE);
-
-    count = recvfrom(clientSock, buffer, BUFFER_SIZE, 0, addr, &addrSize);
-    if (count == 0)
-    {
-      break;
-    }
-    printf("Data received: %s", buffer);
   }
 
   close(clientSock);

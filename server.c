@@ -12,23 +12,25 @@ int main(int argc, char **argv)
 
   int ports[4] = {0};
 
+  // char oneToFour[4] = {'1', '2', '3', '4'};
+
   for (int i = 0; i < 4; i++)
   {
     ports[i] = port + i;
-    //printf("%d  ", ports[i]);
+    // printf("%d  ", ports[i]);
   }
-  //printf("\n");
+  // printf("\n");
 
   int sockets[4];
-  //struct sockaddr *serverAddr[4];
+  // struct sockaddr *serverAddr[4];
 
   for (int i = 0; i < 4; i++)
   {
     char *strPort = itoa(ports[i], strPort, 10);
-    //printf("%s  ", strPort);
+    // printf("%s  ", strPort);
     sockets[i] = createServerSocket(protocol, strPort);
   }
-  //printf("\n");
+  // printf("\n");
 
   struct sockaddr_storage clientStorage;
   struct sockaddr *clientAddr;
@@ -47,47 +49,37 @@ int main(int argc, char **argv)
   }
   printf("[+]Data Received: %s by server %d\n", buffer, ports[0]);
 
-  // for (int i = 1; i < 4; i++)
-  // {
-  //   int count = sendto(sockets[i], buffer, strlen(buffer), 0, clientAddr, storageSize);
-  //   if (count != strlen(buffer))
-  //   {
-  //     logExit("send");
-  //   }
-  //   count = recvfrom(sockets[i], buffer, BUFFER_SIZE, 0, clientAddr, &addrSize);
-  //   if (count == 0)
-  //   {
-  //     logExit("empty message");
-  //   }
-  //   printf("[+]Data Received: %s by server %d\n", buffer, ports[i]);
-  // }
+  memset(buffer, 0, BUFFER_SIZE);
+
+  for (int i = 0; i < 4; i++)
+  {
+    strcpy(buffer, "game started: path ");
+    count = sendto(sockets[i], buffer, sizeof(buffer), 0, clientAddr, storageSize);
+    // if (count != strlen(buffer))
+    // {
+    //   logExit("send");
+    // }
+    // printf("[+]Data Sent: %s by server %d\n", buffer, ports[i]);
+  }
+
+  fflush(stdin);
 
   while (1)
   {
     memset(clientAddr, 0, sizeof(clientStorage));
     memset(buffer, 0, BUFFER_SIZE);
 
-    int count = recvfrom(sockets[0], buffer, BUFFER_SIZE, 0, clientAddr, &addrSize);
+    int count = recvfrom(sockets[3], buffer, BUFFER_SIZE, 0, clientAddr, &addrSize);
     if (count == 0)
     {
       logExit("empty message");
     }
     printf("[+]Data Received: %s", buffer);
 
-    if (strcasecmp(buffer, "kill\n") == 0)
+    if (strcasecmp(buffer, "quit\n") == 0)
     {
       break;
     }
-
-    memset(buffer, 0, BUFFER_SIZE);
-
-    strcpy(buffer, "initiated server 1\n");
-    count = sendto(sockets[0], buffer, sizeof(buffer), 0, clientAddr, addrSize);
-    // if (count != strlen(buffer))
-    // {
-    //   logExit("send");
-    // }
-
   }
 
   for (int i = 0; i < 4; i++)
