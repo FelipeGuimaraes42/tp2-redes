@@ -89,6 +89,7 @@ int main(int argc, char **argv)
 
   int pokemonHitted = 0;
   int pokemonWhoReachedPokedex = 0;
+  int intTurn = 0;
 
   while (1)
   {
@@ -116,14 +117,6 @@ int main(int argc, char **argv)
       // Pokemon fora da borda atacam em suas posições e num posição acima
       // Pokémon na linha 0 ou 3 atacam somente suas linhas
       strcpy(buffer, "defender [[0, 0], [0, 2], [1, 3], [2, 1], [3, 2], [3, 3]]");
-      for (int i = 0; i < BOARD_ROWS; i++)
-      {
-        for (int j = 0; j < BOARD_COLUMNS; j++)
-        {
-          printf("%d  ", defendersBoard[i][j]);
-        }
-        printf("\n");
-      }
       sendto(sockets[3], buffer, sizeof(buffer), 0, clientAddr, storageSize);
     }
 
@@ -143,7 +136,9 @@ int main(int argc, char **argv)
           attackersBoard[i][0] = numberOfPokemon;
 
           char message[BUFFER_SIZE];
-          strcpy(message, "fixed location 1\n");
+          strcpy(message, "turn ");
+          strcat(message, turn);
+          strcat(message, "\nfixed location 1\n");
           char pokeId[4];
           char pokeHits[2];
           char pokeName[10];
@@ -161,17 +156,85 @@ int main(int argc, char **argv)
 
           strcat(message, "\nturn 0\nfixed location 2\n");
           strcat(message, "\nturn 0\nfixed location 3\n");
+          strcat(message, "\nturn 0\nfixed location 4\n\n");
 
           sendto(sockets[3], message, sizeof(message), 0, clientAddr, storageSize);
         }
       }
       else
       {
+        // Aqui o que eu tenho que fazer é o seguinte: andar com os pokemon vivos uma casa
+        //  para a direita e spawnar novos monstros nas primeiras casas
+        for (int i = 3; i >= 0; i--)
+        {
+          for (int j = 3; j >= 0; j--)
+          {
+            if (attackersBoard[i][j] >= 0)
+            {
+              if (j == BOARD_COLUMNS - 1)
+              {
+                pokemonWhoReachedPokedex++;
+                attackersBoard[i][j] = -1;
+              }
+              else
+              {
+                attackersBoard[i][j + 1] = attackersBoard[i][j];
+                attackersBoard[i][j] = -1;
+              }
+            }
+          }
+        }
         for (int i = 0; i < 4; i++)
         {
-          sendto(sockets[3], "TBD\n", sizeof("TBD\n"), 0, clientAddr, storageSize);
+          generateRandomPokemon(&(pokemons[numberOfPokemon]), numberOfPokemon);
+          attackersBoard[i][0] = numberOfPokemon;
+          char message[BUFFER_SIZE];
+          memset(message, 0, BUFFER_SIZE);
+          int index = intTurn * 4 + i;
+          for (int j = 0; j < 4; j++)
+          {
+
+            char fixedLocation[2];
+            strcat(message, "turn ");
+            strcat(message, turn);
+            strcat(message, "\nfixed location ");
+            strcat(message, itoa(j + 1, fixedLocation, 10));
+            strcat(message, "\n");
+            if (index >= 0)
+            {
+              if ((pokemons[index].maxHits - pokemons[index].hits) > 0)
+              {
+
+                char pokeId[4];
+                char pokeHits[2];
+                char pokeName[10];
+                strcpy(pokeName, pokemons[index].name);
+                strcpy(pokeId, itoa(pokemons[index].id, pokeId, 10));
+                strcpy(pokeHits, itoa(pokemons[index].hits, pokeHits, 10));
+
+                strcat(message, pokeId);
+                strcat(message, " ");
+                strcat(message, pokeName);
+                strcat(message, " ");
+                strcat(message, pokeHits);
+                strcat(message, "\n\n");
+              }
+              else
+              {
+                strcat(message, "\n");
+              }
+            }
+            else
+            {
+              strcat(message, "\n");
+            }
+            index -= 4;
+          }
+          numberOfPokemon++;
+          sendto(sockets[3], message, sizeof(message), 0, clientAddr, storageSize);
         }
       }
+      intTurn++;
     }
 
     if (strcasecmp(strtok(buffer, " "), "shot") == 0)
@@ -191,7 +254,7 @@ int main(int argc, char **argv)
 
       if ((defendersBoard[intRow][intColumn] == 1) && (intId >= 0))
       {
-        //Only one attack per turn
+        // Only one attack per turn
         defendersBoard[intRow][intColumn] = -1;
 
         int pokeColumn, pokeRow;

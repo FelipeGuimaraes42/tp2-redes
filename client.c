@@ -97,8 +97,8 @@ int main(int argc, char **argv)
         {
           break;
         }
-        printf("base %d\nturn %d\n", i + 1, turn);
-        printf("%s\n", buffer);
+        printf("base %d\n", i + 1);
+        printf("%s", buffer);
       }
       turn++;
     }
