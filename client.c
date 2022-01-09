@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 
   char addrStr[BUFFER_SIZE];
   addrToStr(addr, addrStr, BUFFER_SIZE);
-  //printf("%s\n", addrStr);
+  // printf("%s\n", addrStr);
 
   char buffer[BUFFER_SIZE];
   memset(buffer, 0, BUFFER_SIZE);
@@ -63,16 +63,17 @@ int main(int argc, char **argv)
     printf("< ");
 
     int count = sendto(clientSock, buffer, strlen(buffer), 0, addr, storageSize);
-
     if (count != strlen(buffer))
     {
+      sendto(clientSock, "quit\n", strlen("quit\n"), 0, addr, storageSize);
       logExit("send");
     }
+
     if (strcasecmp(buffer, "quit\n") == 0)
     {
       break;
     }
-    if (strcasecmp(buffer, "getdefenders\n") == 0)
+    else if (strcasecmp(buffer, "getdefenders\n") == 0)
     {
       int count = recvfrom(clientSock, buffer, BUFFER_SIZE, 0, addr, &addrSize);
       if (count == 0)
@@ -81,7 +82,7 @@ int main(int argc, char **argv)
       }
       printf("%s\n", buffer);
     }
-    if (strcasecmp(strtok(buffer, " "), "getturn") == 0)
+    else if (strcasecmp(strtok(buffer, " "), "getturn") == 0)
     {
       char strTurn[2];
       if (strcmp(strtok(NULL, " \n"), itoa(turn, strTurn, 10)) != 0)
@@ -97,12 +98,12 @@ int main(int argc, char **argv)
         {
           break;
         }
-        printf("base %d\nturn %d\n", i + 1, turn);
-        printf("%s\n", buffer);
+        printf("base %d\n", i + 1);
+        printf("%s", buffer);
       }
       turn++;
     }
-    if (strcasecmp(strtok(buffer, " "), "shot") == 0)
+    else if (strcasecmp(strtok(buffer, " "), "shot") == 0)
     {
       int count = recvfrom(clientSock, buffer, BUFFER_SIZE, 0, addr, &addrSize);
       if (count == 0)
@@ -110,6 +111,17 @@ int main(int argc, char **argv)
         break;
       }
       printf("shotresp %s\n", buffer);
+    }
+    else
+    {
+      int count = recvfrom(clientSock, buffer, BUFFER_SIZE, 0, addr, &addrSize);
+      if (count == 0)
+      {
+        break;
+      }
+      printf("gameover %s\n", buffer);
+      sendto(clientSock, "quit\n", strlen("quit\n"), 0, addr, storageSize);
+      break;
     }
   }
 
