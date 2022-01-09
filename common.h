@@ -16,13 +16,15 @@
 #define FALSE 0
 #define TRUE 1
 #define TYPES_OF_POKEMON 3
+#define BOARD_COLUMNS 5
+#define BOARD_ROWS 4
 #define MILTON "mewtwo"
 #define LUGIA "lugia"
 #define ZUBAT "zubat"
 
 struct Pokemon
 {
-    char id;
+    int id;
     char *name;
     int hits;
     int maxHits;
@@ -49,6 +51,6 @@ char *itoa(int num, char *str, int base);
 
 int createServerSocket(char *protocol, char *port);
 
-struct Pokemon *generateRandomPokemon(int id);
+void generateRandomPokemon(struct Pokemon *pokemon, int id);
 
 #endif

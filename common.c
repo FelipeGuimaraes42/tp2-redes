@@ -222,15 +222,14 @@ int createServerSocket(char *protocol, char *port)
   return sockfd;
 }
 
-struct Pokemon *generateRandomPokemon(int id)
+void generateRandomPokemon(struct Pokemon *pokemon, int id)
 {
   int poke = rand() % TYPES_OF_POKEMON;
-  struct Pokemon *pokemon = {0};
   if (poke == 0)
   {
     pokemon->hits = 0;
     pokemon->maxHits = 1;
-    char *nome = {0};
+    char nome[7];
     strcpy(nome, ZUBAT);
     pokemon->name = nome;
     pokemon->id = id;
@@ -239,7 +238,7 @@ struct Pokemon *generateRandomPokemon(int id)
   {
     pokemon->hits = 0;
     pokemon->maxHits = 2;
-    char *nome = {0};
+    char nome[7];
     strcpy(nome, LUGIA);
     pokemon->name = nome;
     pokemon->id = id;
@@ -248,7 +247,7 @@ struct Pokemon *generateRandomPokemon(int id)
   {
     pokemon->hits = 0;
     pokemon->maxHits = 3;
-    char *nome = {0};
+    char nome[7];
     strcpy(nome, MILTON);
     pokemon->name = nome;
     pokemon->id = id;
@@ -258,5 +257,4 @@ struct Pokemon *generateRandomPokemon(int id)
     printf("Dunno how you reached here pal\n");
     exit(EXIT_FAILURE);
   }
-  return pokemon;
 }

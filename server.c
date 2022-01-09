@@ -12,19 +12,31 @@ int main(int argc, char **argv)
 
   int ports[4] = {0};
 
-  // // 0 is the borning position
-  // // 5 is the pokedex location
-  // struct Pokemon gameRow[4][5] = {0};
-  // // struct Pokemon *gameRow1[5];
-  // // struct Pokemon *gameRow2[5];
-  // // struct Pokemon *gameRow3[5];
+  /*
+    the game board will be a matrix and
+    it will store the pokemon ids
+  */
+  int attackersBoard[BOARD_ROWS][BOARD_COLUMNS];
+  memset(attackersBoard, -1, sizeof(attackersBoard[0][0]) * BOARD_ROWS * BOARD_COLUMNS);
 
-  // srand(time(NULL));
-
-  // struct Pokemon **pokemons = {0};
-  // int numberOfPokemon = 0;
+  int defendersBoard[BOARD_ROWS][BOARD_COLUMNS];
+  memset(defendersBoard, -1, sizeof(defendersBoard[0][0]) * BOARD_ROWS * BOARD_COLUMNS);
 
   // char oneToFour[4] = {'1', '2', '3', '4'};
+
+  // for (int i = 0; i < BOARD_ROWS; i++)
+  // {
+  //   for (int j = 0; j < BOARD_COLUMNS; j++)
+  //   {
+  //     printf("%d  ", attackersBoard[i][j]);
+  //   }
+  //   printf("\n");
+  // }
+
+  srand(time(NULL));
+
+  struct Pokemon pokemons[300];
+  int numberOfPokemon = 0;
 
   for (int i = 0; i < 4; i++)
   {
@@ -38,12 +50,11 @@ int main(int argc, char **argv)
 
   for (int i = 0; i < 4; i++)
   {
-    char *strPort = itoa(ports[i], strPort, 10);
+    char strPort[10];
+    sockets[i] = createServerSocket(protocol, itoa(ports[i], strPort, 10));
     // printf("%s  ", strPort);
-    sockets[i] = createServerSocket(protocol, strPort);
   }
   // printf("\n");
-
   struct sockaddr_storage clientStorage;
   struct sockaddr *clientAddr;
   clientAddr = (struct sockaddr *)&clientStorage;
@@ -97,41 +108,52 @@ int main(int argc, char **argv)
     {
       memset(buffer, 0, BUFFER_SIZE);
       strcpy(buffer, "defender [[1, 0], [3, 0], [4, 1], [2, 2], [3, 3], [4, 4]]");
-      printf("%s\n", buffer);
       sendto(sockets[3], buffer, sizeof(buffer), 0, clientAddr, storageSize);
     }
 
+    if (strcasecmp(strtok(buffer, " "), "getturn") == 0)
+    {
+      // first wave
+      char turn[3];
+      strcpy(turn, strtok(NULL, " \n"));
+      if (strcmp(turn, "0") == 0)
+      {
+        for (int i = 0; i < 4; i++)
+        {
+          generateRandomPokemon(&(pokemons[numberOfPokemon]), numberOfPokemon);
+          attackersBoard[i][0] = numberOfPokemon;
 
-    // if (strcasecmp(strtok(buffer, " "), "getturn") == 0)
-    // {
-    //   // first wave
-    //   if (strcmp(strtok(NULL, "\n"), "0") == 0)
-    //   {
-    //     for (int i = 0; i < 4; i++)
-    //     {
-    //       pokemons[numberOfPokemon] = generateRandomPokemon(numberOfPokemon);
-    //       gameRow[i][0] = *pokemons[numberOfPokemon];
-    //       numberOfPokemon++;
-    //       sendto(sockets[3], pokemons[i]->name, sizeof(buffer), 0, clientAddr, storageSize);
-    //     }
-    //   }
-    //   else
-    //   {
-    //     // follow the baile
-    //     for (int i = 0; i < 4; i++)
-    //     {
-    //       pokemons[numberOfPokemon] = generateRandomPokemon(numberOfPokemon);
-    //       gameRow[i][0] = *pokemons[numberOfPokemon];
-    //       numberOfPokemon++;
-    //       sendto(sockets[3], pokemons[i]->name, sizeof(buffer), 0, clientAddr, storageSize);
-    //     }
-    //   }
+          char message[BUFFER_SIZE];
+          strcpy(message, "fixed location 1\n");
+          char pokeId[4];
+          char pokeHits[2];
+          char pokeName[10];
+          strcpy(pokeName, pokemons[i].name);
+          strcpy(pokeId, itoa(pokemons[i].id, pokeId, 10));
+          strcpy(pokeHits, itoa(pokemons[i].hits, pokeHits, 10));
 
-    //   memset(buffer, 0, BUFFER_SIZE);
-    //   strcpy(buffer, "defender [[1, 0], [3, 0], [4, 1], [2, 2], [3, 3], [4, 4]]");
-    //   printf("%s\n", buffer);
-    //   sendto(sockets[3], buffer, sizeof(buffer), 0, clientAddr, storageSize);
-    // }
+          strcat(message, pokeId);
+          strcat(message, " ");
+          strcat(message, pokeName);
+          strcat(message, " ");
+          strcat(message, pokeHits);
+          strcat(message, "\n");
+          numberOfPokemon++;
+
+          strcat(message, "\nturn 0\nfixed location 2\n");
+          strcat(message, "\nturn 0\nfixed location 3\n");
+
+          sendto(sockets[3], message, sizeof(message), 0, clientAddr, storageSize);
+        }
+      }
+      else
+      {
+        for (int i = 0; i < 4; i++)
+        {
+          sendto(sockets[3], "TBD\n", sizeof("TBD\n"), 0, clientAddr, storageSize);
+        }
+      }
+    }
   }
 
   for (int i = 0; i < 4; i++)

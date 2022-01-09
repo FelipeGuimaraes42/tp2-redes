@@ -35,7 +35,6 @@ int main(int argc, char **argv)
 
   strcpy(buffer, argv[3]);
   sendto(clientSock, buffer, strlen(buffer), 0, addr, sizeof(struct sockaddr_storage));
-  printf("[+]Data Send: %s\n", buffer);
 
   socklen_t addrSize = sizeof(struct sockaddr);
   socklen_t storageSize = sizeof(struct sockaddr_storage);
@@ -97,6 +96,7 @@ int main(int argc, char **argv)
         {
           break;
         }
+        printf("base %d\nturn %d\n", i + 1, turn);
         printf("%s\n", buffer);
       }
       turn++;
