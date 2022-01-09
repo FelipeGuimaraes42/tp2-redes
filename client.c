@@ -1,22 +1,27 @@
 #include "common.h"
 
-int main(int argc, char **argv){
-  if(argc != 4) {
+int main(int argc, char **argv)
+{
+  if (argc != 4)
+  {
     usage(FALSE, argv);
   }
 
-  if(strcmp(argv[3], "start") != 0){
-    logExit("wrong initialization keyword.");
+  if (strcmp(argv[3], "start") != 0)
+  {
+    logExit("wrong initialization keyword");
   }
 
   struct sockaddr_storage storage;
-  if (addrParse(argv[1], argv[2], &storage) != 0) {
-      usage(FALSE, argv);
+  if (addrParse(argv[1], argv[2], &storage) != 0)
+  {
+    usage(FALSE, argv);
   }
 
-  int sockfd = socket(storage.ss_family, SOCK_DGRAM, 0);
-  if (sockfd == -1) {
-      logExit("socket");
+  int clientSock = socket(storage.ss_family, SOCK_DGRAM, 0);
+  if (clientSock == -1)
+  {
+    logExit("socket");
   }
 
   struct sockaddr *addr = (struct sockaddr *)(&storage);
@@ -26,12 +31,79 @@ int main(int argc, char **argv){
   printf("%s\n", addrStr);
 
   char buffer[BUFFER_SIZE];
+  memset(buffer, 0, BUFFER_SIZE);
 
-  strcpy(buffer, "Hello Server\n");
-  sendto(sockfd, buffer, strlen(buffer), 0, addr, sizeof(struct sockaddr_storage));
-  printf("[+]Data Send: %s", buffer);
+  strcpy(buffer, argv[3]);
+  sendto(clientSock, buffer, strlen(buffer), 0, addr, sizeof(struct sockaddr_storage));
 
-  close(sockfd);
+  socklen_t addrSize = sizeof(struct sockaddr);
+  socklen_t storageSize = sizeof(struct sockaddr_storage);
+
+  int response = 1;
+  while (response < 5)
+  {
+    memset(buffer, 0, BUFFER_SIZE);
+
+    int count = recvfrom(clientSock, buffer, BUFFER_SIZE, 0, addr, &addrSize);
+    if (count == 0)
+    {
+      break;
+    }
+    printf("%s %d\n", buffer, response);
+    response++;
+  }
+
+  int turn = 0;
+
+  while (1)
+  {
+    memset(buffer, 0, BUFFER_SIZE);
+    printf("> ");
+    fgets(buffer, BUFFER_SIZE - 1, stdin);
+
+    int count = sendto(clientSock, buffer, strlen(buffer), 0, addr, storageSize);
+
+    if (count != strlen(buffer))
+    {
+      logExit("send");
+    }
+    if (strcasecmp(buffer, "quit\n") == 0)
+    {
+      break;
+    }
+    if (strcasecmp(buffer, "getdefenders\n") == 0)
+    {
+      int count = recvfrom(clientSock, buffer, BUFFER_SIZE, 0, addr, &addrSize);
+      if (count == 0)
+      {
+        break;
+      }
+      printf("%s\n", buffer);
+    }
+    if (strcasecmp(strtok(buffer, " "), "getturn") == 0)
+    {
+      char strTurn[2];
+      if (strcmp(strtok(NULL, " \n"), itoa(turn, strTurn, 10)) != 0)
+      {
+        sendto(clientSock, "quit\n", strlen("quit\n"), 0, addr, storageSize);
+        logExit("wrong turn");
+      }
+      // one for each base
+      for (int i = 0; i < 4; i++)
+      {
+        int count = recvfrom(clientSock, buffer, BUFFER_SIZE, 0, addr, &addrSize);
+        if (count == 0)
+        {
+          break;
+        }
+        printf("base %d\nturn %d\n", i + 1, turn);
+        printf("%s\n", buffer);
+      }
+      turn++;
+    }
+  }
+
+  close(clientSock);
 
   return 0;
 }
