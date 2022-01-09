@@ -25,7 +25,7 @@
 struct Pokemon
 {
     int id;
-    char *name;
+    char name[10];
     int hits;
     int maxHits;
 };

@@ -160,8 +160,9 @@ int main(int argc, char **argv)
 
     if (strcasecmp(strtok(buffer, " "), "shot") == 0)
     {
-      char *notUsedWord = strtok(receivedMessage, " ");
-      char *row = strtok(NULL, " ");
+      printf("%d\n", pokemons[1].maxHits);
+      char *row = strtok(receivedMessage, " ");
+      row = strtok(NULL, " ");
       char *column = strtok(NULL, " ");
       char *id = strtok(NULL, " \n");
 
@@ -172,6 +173,12 @@ int main(int argc, char **argv)
       strcat(buffer, " ");
       strcat(buffer, id);
       strcat(buffer, "\n");
+
+      int intId = atoi(id);
+      char nome[10];
+      strcpy(nome, pokemons[1].name);
+      printf("nome %s\n", nome);
+
       sendto(sockets[3], buffer, sizeof(buffer), 0, clientAddr, storageSize);
     }
   }
