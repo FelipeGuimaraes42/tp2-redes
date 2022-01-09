@@ -90,6 +90,8 @@ int main(int argc, char **argv)
   int pokemonHitted = 0;
   int pokemonWhoReachedPokedex = 0;
   int intTurn = 0;
+  clock_t timer;
+  timer = clock();
 
   while (1)
   {
@@ -111,7 +113,7 @@ int main(int argc, char **argv)
       break;
     }
 
-    if (strcasecmp(buffer, "getdefenders\n") == 0)
+    else if (strcasecmp(buffer, "getdefenders\n") == 0)
     {
       memset(buffer, 0, BUFFER_SIZE);
       // Pokemon fora da borda atacam em suas posições e num posição acima
@@ -120,7 +122,7 @@ int main(int argc, char **argv)
       sendto(sockets[3], buffer, sizeof(buffer), 0, clientAddr, storageSize);
     }
 
-    if (strcasecmp(strtok(buffer, " "), "getturn") == 0)
+    else if (strcasecmp(strtok(buffer, " "), "getturn") == 0)
     {
       // first wave
       char turn[3];
@@ -237,7 +239,7 @@ int main(int argc, char **argv)
       intTurn++;
     }
 
-    if (strcasecmp(strtok(buffer, " "), "shot") == 0)
+    else if (strcasecmp(strtok(buffer, " "), "shot") == 0)
     {
       char *row = strtok(receivedMessage, " ");
       row = strtok(NULL, " ");
@@ -349,6 +351,30 @@ int main(int argc, char **argv)
 
         sendto(sockets[3], buffer, sizeof(buffer), 0, clientAddr, storageSize);
       }
+    }
+    else
+    {
+      memset(buffer, 0, BUFFER_SIZE);
+
+      timer = clock() - timer;
+      // int timeTaken = (int)(((double)timer)/CLOCKS_PER_SEC);
+      double doubleTime = ((double)timer) / CLOCKS_PER_SEC;
+      printf("Timer: %f", doubleTime);
+
+      int timeTaken = (int) doubleTime;
+
+      char finalHits[5];
+      strcpy(buffer, itoa(pokemonHitted, finalHits, 10));
+
+      strcat(buffer, " ");
+      char notDestroyedPokemon[4];
+      strcat(buffer, itoa(pokemonWhoReachedPokedex, notDestroyedPokemon, 10));
+
+      strcat(buffer, " ");
+      char secondsToFinish[10];
+      strcat(buffer, itoa(timeTaken, secondsToFinish, 10));
+
+      sendto(sockets[3], buffer, sizeof(buffer), 0, clientAddr, storageSize);
     }
   }
 
