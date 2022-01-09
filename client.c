@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 
   char addrStr[BUFFER_SIZE];
   addrToStr(addr, addrStr, BUFFER_SIZE);
-  printf("%s\n", addrStr);
+  //printf("%s\n", addrStr);
 
   char buffer[BUFFER_SIZE];
   memset(buffer, 0, BUFFER_SIZE);
@@ -60,6 +60,7 @@ int main(int argc, char **argv)
     memset(buffer, 0, BUFFER_SIZE);
     printf("> ");
     fgets(buffer, BUFFER_SIZE - 1, stdin);
+    printf("< ");
 
     int count = sendto(clientSock, buffer, strlen(buffer), 0, addr, storageSize);
 
@@ -100,6 +101,15 @@ int main(int argc, char **argv)
         printf("%s\n", buffer);
       }
       turn++;
+    }
+    if (strcasecmp(strtok(buffer, " "), "shot") == 0)
+    {
+      int count = recvfrom(clientSock, buffer, BUFFER_SIZE, 0, addr, &addrSize);
+      if (count == 0)
+      {
+        break;
+      }
+      printf("shotresp %s\n", buffer);
     }
   }
 

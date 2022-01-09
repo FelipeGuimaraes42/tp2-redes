@@ -231,7 +231,8 @@ void generateRandomPokemon(struct Pokemon *pokemon, int id)
     pokemon->maxHits = 1;
     char nome[7];
     strcpy(nome, ZUBAT);
-    pokemon->name = nome;
+    strcpy(pokemon->name, nome);
+    //pokemon->name = nome;
     pokemon->id = id;
   }
   else if (poke == 1)
@@ -240,7 +241,8 @@ void generateRandomPokemon(struct Pokemon *pokemon, int id)
     pokemon->maxHits = 2;
     char nome[7];
     strcpy(nome, LUGIA);
-    pokemon->name = nome;
+    strcpy(pokemon->name, nome);
+    //pokemon->name = nome;
     pokemon->id = id;
   }
   else if (poke == 2)
@@ -249,7 +251,8 @@ void generateRandomPokemon(struct Pokemon *pokemon, int id)
     pokemon->maxHits = 3;
     char nome[7];
     strcpy(nome, MILTON);
-    pokemon->name = nome;
+    strcpy(pokemon->name, nome);
+    //pokemon->name = nome;
     pokemon->id = id;
   }
   else
