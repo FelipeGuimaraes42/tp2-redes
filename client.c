@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 
   char addrStr[BUFFER_SIZE];
   addrToStr(addr, addrStr, BUFFER_SIZE);
-  printf("%s\n", addrStr);
+  //printf("%s\n", addrStr);
 
   char buffer[BUFFER_SIZE];
   memset(buffer, 0, BUFFER_SIZE);

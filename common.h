@@ -16,7 +16,7 @@
 #define FALSE 0
 #define TRUE 1
 #define TYPES_OF_POKEMON 3
-#define BOARD_COLUMNS 5
+#define BOARD_COLUMNS 4
 #define BOARD_ROWS 4
 #define MILTON "mewtwo"
 #define LUGIA "lugia"

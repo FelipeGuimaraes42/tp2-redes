@@ -21,6 +21,8 @@ int main(int argc, char **argv)
 
   int defendersBoard[BOARD_ROWS][BOARD_COLUMNS];
   memset(defendersBoard, -1, sizeof(defendersBoard[0][0]) * BOARD_ROWS * BOARD_COLUMNS);
+  defendersBoard[0][0] = defendersBoard[0][2] = defendersBoard[1][3] = defendersBoard[2][1] =
+      defendersBoard[3][2] = defendersBoard[3][3] = 1;
 
   // char oneToFour[4] = {'1', '2', '3', '4'};
 
@@ -110,7 +112,17 @@ int main(int argc, char **argv)
     if (strcasecmp(buffer, "getdefenders\n") == 0)
     {
       memset(buffer, 0, BUFFER_SIZE);
-      strcpy(buffer, "defender [[1, 0], [3, 0], [4, 1], [2, 2], [3, 3], [4, 4]]");
+      // Pokemon fora da borda atacam em suas posições e num posição acima
+      // Pokémon na linha 0 ou 3 atacam somente suas linhas
+      strcpy(buffer, "defender [[0, 0], [0, 2], [1, 3], [2, 1], [3, 2], [3, 3]]");
+      for (int i = 0; i < BOARD_ROWS; i++)
+      {
+        for (int j = 0; j < BOARD_COLUMNS; j++)
+        {
+          printf("%d  ", defendersBoard[i][j]);
+        }
+        printf("\n");
+      }
       sendto(sockets[3], buffer, sizeof(buffer), 0, clientAddr, storageSize);
     }
 
@@ -160,26 +172,100 @@ int main(int argc, char **argv)
 
     if (strcasecmp(strtok(buffer, " "), "shot") == 0)
     {
-      printf("%d\n", pokemons[1].maxHits);
       char *row = strtok(receivedMessage, " ");
       row = strtok(NULL, " ");
       char *column = strtok(NULL, " ");
       char *id = strtok(NULL, " \n");
+      char status[2];
+      strcpy(status, "1");
 
-      memset(buffer, 0, BUFFER_SIZE);
-      strcpy(buffer, row);
-      strcat(buffer, " ");
-      strcat(buffer, column);
-      strcat(buffer, " ");
-      strcat(buffer, id);
-      strcat(buffer, "\n");
-
+      int intRow = atoi(row);
+      int intColumn = atoi(column);
       int intId = atoi(id);
-      char nome[10];
-      strcpy(nome, pokemons[1].name);
-      printf("nome %s\n", nome);
 
-      sendto(sockets[3], buffer, sizeof(buffer), 0, clientAddr, storageSize);
+      //printf("%d\n", defendersBoard[intRow][intColumn]);
+
+      if ((defendersBoard[intRow][intColumn] == 1) && (intId >= 0))
+      {
+        int pokeColumn, pokeRow;
+        pokeColumn = pokeRow = -1;
+        for (int i = 0; i < BOARD_ROWS; i++)
+        {
+          for (int j = 0; j < BOARD_COLUMNS; j++)
+          {
+            if (attackersBoard[i][j] == intId)
+            {
+              pokeRow = i;
+              pokeColumn = j;
+              break;
+            }
+          }
+        }
+        // Didn't find a Pokémon with that ID
+        if (pokeColumn == -1 || pokeRow == -1)
+        {
+          strcpy(status, "1");
+        }
+        else
+        {
+          // Verificar se o Pokémon de defesa consegue acertar esse cara
+          if (intRow == 0 || intRow == 3)
+          {
+            // So consegue atacar onde ele está
+            if (intRow == pokeRow && intColumn == pokeColumn)
+            {
+              pokemons[intId].hits++;
+              printf("%s was hitted! It has %d hits left\n", pokemons[intId].name, pokemons->maxHits - pokemons->hits);
+              strcpy(status, "0");
+            }
+            else
+            {
+              strcpy(status, "1");
+            }
+          }
+          else
+          {
+            // Consegue atacar onde ele esta e uma linha acima
+            if ((intRow == pokeRow || intRow == (pokeRow+1)) && intColumn == pokeColumn)
+            {
+              strcpy(status, "0");
+              pokemons[intId].hits++;
+              printf("%s was hitted! It has %d hits left", pokemons[intId].name, pokemons->maxHits - pokemons->hits);
+              strcpy(status, "0");
+            }
+            else
+            {
+              strcpy(status, "1");
+            }
+          }
+        }
+        memset(buffer, 0, BUFFER_SIZE);
+        strcpy(buffer, row);
+        strcat(buffer, " ");
+        strcat(buffer, column);
+        strcat(buffer, " ");
+        strcat(buffer, id);
+        strcat(buffer, " ");
+        strcat(buffer, status);
+        strcat(buffer, "\n");
+
+        sendto(sockets[3], buffer, sizeof(buffer), 0, clientAddr, storageSize);
+      }
+      else
+      {
+        memset(buffer, 0, BUFFER_SIZE);
+        strcpy(buffer, row);
+        strcpy(status, "1");
+        strcat(buffer, " ");
+        strcat(buffer, column);
+        strcat(buffer, " ");
+        strcat(buffer, id);
+        strcat(buffer, " ");
+        strcat(buffer, status);
+        strcat(buffer, "\n");
+
+        sendto(sockets[3], buffer, sizeof(buffer), 0, clientAddr, storageSize);
+      }
     }
   }
 
