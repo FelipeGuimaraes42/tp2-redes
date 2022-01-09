@@ -21,8 +21,6 @@ int main(int argc, char **argv)
 
   int defendersBoard[BOARD_ROWS][BOARD_COLUMNS];
   memset(defendersBoard, -1, sizeof(defendersBoard[0][0]) * BOARD_ROWS * BOARD_COLUMNS);
-  defendersBoard[0][0] = defendersBoard[0][2] = defendersBoard[1][3] = defendersBoard[2][1] =
-      defendersBoard[3][2] = defendersBoard[3][3] = 1;
 
   // char oneToFour[4] = {'1', '2', '3', '4'};
 
@@ -89,6 +87,9 @@ int main(int argc, char **argv)
 
   fflush(stdin);
 
+  int pokemonHitted = 0;
+  int pokemonWhoReachedPokedex = 0;
+
   while (1)
   {
     char receivedMessage[BUFFER_SIZE];
@@ -131,6 +132,9 @@ int main(int argc, char **argv)
       // first wave
       char turn[3];
       strcpy(turn, strtok(NULL, " \n"));
+
+      defendersBoard[0][0] = defendersBoard[0][2] = defendersBoard[1][3] = defendersBoard[2][1] =
+          defendersBoard[3][2] = defendersBoard[3][3] = 1;
       if (strcmp(turn, "0") == 0)
       {
         for (int i = 0; i < 4; i++)
@@ -187,6 +191,9 @@ int main(int argc, char **argv)
 
       if ((defendersBoard[intRow][intColumn] == 1) && (intId >= 0))
       {
+        //Only one attack per turn
+        defendersBoard[intRow][intColumn] = -1;
+
         int pokeColumn, pokeRow;
         pokeColumn = pokeRow = -1;
         for (int i = 0; i < BOARD_ROWS; i++)
@@ -222,6 +229,7 @@ int main(int argc, char **argv)
                 printf("%s is out of combat!\n", pokemons[intId].name);
                 attackersBoard[pokeRow][pokeColumn] = -1;
               }
+              pokemonHitted++;
               strcpy(status, "0");
             }
             else
@@ -241,6 +249,7 @@ int main(int argc, char **argv)
                 printf("%s is out of combat!\n", pokemons[intId].name);
                 attackersBoard[pokeRow][pokeColumn] = -1;
               }
+              pokemonHitted++;
               strcpy(status, "0");
             }
             else
@@ -263,7 +272,7 @@ int main(int argc, char **argv)
       }
       else
       {
-        printf("There's no defender Pokemon there!\n");
+        printf("There's no defender Pokemon there or the pokemon needs to recharge!\n");
         memset(buffer, 0, BUFFER_SIZE);
         strcpy(buffer, row);
         strcpy(status, "1");
