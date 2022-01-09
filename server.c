@@ -89,8 +89,10 @@ int main(int argc, char **argv)
 
   while (1)
   {
+    char receivedMessage[BUFFER_SIZE];
     memset(clientAddr, 0, sizeof(clientStorage));
     memset(buffer, 0, BUFFER_SIZE);
+    memset(receivedMessage, 0, BUFFER_SIZE);
 
     int count = recvfrom(sockets[3], buffer, BUFFER_SIZE, 0, clientAddr, &addrSize);
     if (count == 0)
@@ -98,6 +100,7 @@ int main(int argc, char **argv)
       logExit("empty message");
     }
     printf("[+]Data Received: %s", buffer);
+    strcpy(receivedMessage, buffer);
 
     if (strcasecmp(buffer, "quit\n") == 0)
     {
@@ -153,6 +156,23 @@ int main(int argc, char **argv)
           sendto(sockets[3], "TBD\n", sizeof("TBD\n"), 0, clientAddr, storageSize);
         }
       }
+    }
+
+    if (strcasecmp(strtok(buffer, " "), "shot") == 0)
+    {
+      char *notUsedWord = strtok(receivedMessage, " ");
+      char *row = strtok(NULL, " ");
+      char *column = strtok(NULL, " ");
+      char *id = strtok(NULL, " \n");
+
+      memset(buffer, 0, BUFFER_SIZE);
+      strcpy(buffer, row);
+      strcat(buffer, " ");
+      strcat(buffer, column);
+      strcat(buffer, " ");
+      strcat(buffer, id);
+      strcat(buffer, "\n");
+      sendto(sockets[3], buffer, sizeof(buffer), 0, clientAddr, storageSize);
     }
   }
 
