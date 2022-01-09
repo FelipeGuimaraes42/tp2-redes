@@ -10,10 +10,23 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <time.h>
 
 #define BUFFER_SIZE 1024
-#define TRUE 1
 #define FALSE 0
+#define TRUE 1
+#define TYPES_OF_POKEMON 3
+#define MILTON "mewtwo"
+#define LUGIA "lugia"
+#define ZUBAT "zubat"
+
+struct Pokemon
+{
+    char id;
+    char *name;
+    int hits;
+    int maxHits;
+};
 
 void usage(int, char **);
 
@@ -27,10 +40,15 @@ void addrToStr(const struct sockaddr *addr, char *str, size_t strSize);
 int serverSockaddrInit(const char *protocol, const char *portStr,
                        struct sockaddr_storage *storage);
 
-void reverse(char *, int);
+// void reverse(char *, int);
 
-char *itoa(int, char *, int);
+// char *itoa(int, char *, int);
+
+void my_reverse(char str[], int len);
+char *itoa(int num, char *str, int base);
 
 int createServerSocket(char *protocol, char *port);
+
+struct Pokemon *generateRandomPokemon(int id);
 
 #endif

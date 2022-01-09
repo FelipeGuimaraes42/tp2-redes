@@ -54,6 +54,8 @@ int main(int argc, char **argv)
     response++;
   }
 
+  int turn = 0;
+
   while (1)
   {
     memset(buffer, 0, BUFFER_SIZE);
@@ -78,6 +80,26 @@ int main(int argc, char **argv)
         break;
       }
       printf("%s\n", buffer);
+    }
+    if (strcasecmp(strtok(buffer, " "), "getturn") == 0)
+    {
+      char strTurn[2];
+      if (strcmp(strtok(NULL, " \n"), itoa(turn, strTurn, 10)) != 0)
+      {
+        sendto(clientSock, "quit\n", strlen("quit\n"), 0, addr, storageSize);
+        logExit("wrong turn");
+      }
+      // one for each base
+      for (int i = 0; i < 4; i++)
+      {
+        int count = recvfrom(clientSock, buffer, BUFFER_SIZE, 0, addr, &addrSize);
+        if (count == 0)
+        {
+          break;
+        }
+        printf("%s\n", buffer);
+      }
+      turn++;
     }
   }
 

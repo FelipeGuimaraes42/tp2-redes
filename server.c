@@ -12,6 +12,18 @@ int main(int argc, char **argv)
 
   int ports[4] = {0};
 
+  // // 0 is the borning position
+  // // 5 is the pokedex location
+  // struct Pokemon gameRow[4][5] = {0};
+  // // struct Pokemon *gameRow1[5];
+  // // struct Pokemon *gameRow2[5];
+  // // struct Pokemon *gameRow3[5];
+
+  // srand(time(NULL));
+
+  // struct Pokemon **pokemons = {0};
+  // int numberOfPokemon = 0;
+
   // char oneToFour[4] = {'1', '2', '3', '4'};
 
   for (int i = 0; i < 4; i++)
@@ -53,7 +65,7 @@ int main(int argc, char **argv)
 
   for (int i = 0; i < 4; i++)
   {
-    strcpy(buffer, "game started: path ");
+    strcpy(buffer, "game started: path");
     count = sendto(sockets[i], buffer, sizeof(buffer), 0, clientAddr, storageSize);
     // if (count != strlen(buffer))
     // {
@@ -80,12 +92,46 @@ int main(int argc, char **argv)
     {
       break;
     }
-    if (strcasecmp(buffer, "getdefenders\n") == 0){
+
+    if (strcasecmp(buffer, "getdefenders\n") == 0)
+    {
       memset(buffer, 0, BUFFER_SIZE);
-      strcpy(buffer, "[[1, 0], [3, 0], [4, 1], [2, 2], [3, 3], [4, 4]]");
+      strcpy(buffer, "defender [[1, 0], [3, 0], [4, 1], [2, 2], [3, 3], [4, 4]]");
       printf("%s\n", buffer);
       sendto(sockets[3], buffer, sizeof(buffer), 0, clientAddr, storageSize);
     }
+
+
+    // if (strcasecmp(strtok(buffer, " "), "getturn") == 0)
+    // {
+    //   // first wave
+    //   if (strcmp(strtok(NULL, "\n"), "0") == 0)
+    //   {
+    //     for (int i = 0; i < 4; i++)
+    //     {
+    //       pokemons[numberOfPokemon] = generateRandomPokemon(numberOfPokemon);
+    //       gameRow[i][0] = *pokemons[numberOfPokemon];
+    //       numberOfPokemon++;
+    //       sendto(sockets[3], pokemons[i]->name, sizeof(buffer), 0, clientAddr, storageSize);
+    //     }
+    //   }
+    //   else
+    //   {
+    //     // follow the baile
+    //     for (int i = 0; i < 4; i++)
+    //     {
+    //       pokemons[numberOfPokemon] = generateRandomPokemon(numberOfPokemon);
+    //       gameRow[i][0] = *pokemons[numberOfPokemon];
+    //       numberOfPokemon++;
+    //       sendto(sockets[3], pokemons[i]->name, sizeof(buffer), 0, clientAddr, storageSize);
+    //     }
+    //   }
+
+    //   memset(buffer, 0, BUFFER_SIZE);
+    //   strcpy(buffer, "defender [[1, 0], [3, 0], [4, 1], [2, 2], [3, 3], [4, 4]]");
+    //   printf("%s\n", buffer);
+    //   sendto(sockets[3], buffer, sizeof(buffer), 0, clientAddr, storageSize);
+    // }
   }
 
   for (int i = 0; i < 4; i++)
