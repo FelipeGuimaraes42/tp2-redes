@@ -183,7 +183,7 @@ int main(int argc, char **argv)
       int intColumn = atoi(column);
       int intId = atoi(id);
 
-      //printf("%d\n", defendersBoard[intRow][intColumn]);
+      // printf("%d\n", defendersBoard[intRow][intColumn]);
 
       if ((defendersBoard[intRow][intColumn] == 1) && (intId >= 0))
       {
@@ -204,6 +204,7 @@ int main(int argc, char **argv)
         // Didn't find a Pokémon with that ID
         if (pokeColumn == -1 || pokeRow == -1)
         {
+          printf("There's no attacker Pokemon there!\n");
           strcpy(status, "1");
         }
         else
@@ -215,7 +216,12 @@ int main(int argc, char **argv)
             if (intRow == pokeRow && intColumn == pokeColumn)
             {
               pokemons[intId].hits++;
-              printf("%s was hitted! It has %d hits left\n", pokemons[intId].name, pokemons->maxHits - pokemons->hits);
+              printf("%s was hitted! It has %d hits left\n", pokemons[intId].name, pokemons[intId].maxHits - pokemons[intId].hits);
+              if (pokemons->maxHits - pokemons->hits == 0)
+              {
+                printf("%s is out of combat!\n", pokemons[intId].name);
+                attackersBoard[pokeRow][pokeColumn] = -1;
+              }
               strcpy(status, "0");
             }
             else
@@ -226,11 +232,15 @@ int main(int argc, char **argv)
           else
           {
             // Consegue atacar onde ele esta e uma linha acima
-            if ((intRow == pokeRow || intRow == (pokeRow+1)) && intColumn == pokeColumn)
+            if ((intRow == pokeRow || intRow == (pokeRow + 1)) && intColumn == pokeColumn)
             {
-              strcpy(status, "0");
               pokemons[intId].hits++;
-              printf("%s was hitted! It has %d hits left", pokemons[intId].name, pokemons->maxHits - pokemons->hits);
+              printf("%s was hitted! It has %d hits left\n", pokemons[intId].name, pokemons[intId].maxHits - pokemons[intId].hits);
+              if (pokemons->maxHits - pokemons->hits == 0)
+              {
+                printf("%s is out of combat!\n", pokemons[intId].name);
+                attackersBoard[pokeRow][pokeColumn] = -1;
+              }
               strcpy(status, "0");
             }
             else
@@ -253,6 +263,7 @@ int main(int argc, char **argv)
       }
       else
       {
+        printf("There's no defender Pokemon there!\n");
         memset(buffer, 0, BUFFER_SIZE);
         strcpy(buffer, row);
         strcpy(status, "1");
