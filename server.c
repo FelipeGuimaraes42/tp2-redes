@@ -10,11 +10,10 @@ int main(int argc, char **argv)
   char *protocol = argv[1];
   int port = atoi(argv[2]);
 
-  int ports[4] = {0};
-
   /*
     the game board will be a matrix and
-    it will store the pokemon ids
+    it will store the pokemon ids for the attackers
+    and it will store a positive number for defenders
   */
   int attackersBoard[BOARD_ROWS][BOARD_COLUMNS];
   memset(attackersBoard, -1, sizeof(attackersBoard[0][0]) * BOARD_ROWS * BOARD_COLUMNS);
@@ -22,39 +21,25 @@ int main(int argc, char **argv)
   int defendersBoard[BOARD_ROWS][BOARD_COLUMNS];
   memset(defendersBoard, -1, sizeof(defendersBoard[0][0]) * BOARD_ROWS * BOARD_COLUMNS);
 
-  // char oneToFour[4] = {'1', '2', '3', '4'};
-
-  // for (int i = 0; i < BOARD_ROWS; i++)
-  // {
-  //   for (int j = 0; j < BOARD_COLUMNS; j++)
-  //   {
-  //     printf("%d  ", attackersBoard[i][j]);
-  //   }
-  //   printf("\n");
-  // }
-
   srand(time(NULL));
 
   struct Pokemon pokemons[300];
   int numberOfPokemon = 0;
 
+  int sockets[4];
+  int ports[4] = {0};
+
   for (int i = 0; i < 4; i++)
   {
     ports[i] = port + i;
-    // printf("%d  ", ports[i]);
   }
-  // printf("\n");
-
-  int sockets[4];
-  // struct sockaddr *serverAddr[4];
 
   for (int i = 0; i < 4; i++)
   {
     char strPort[10];
     sockets[i] = createServerSocket(protocol, itoa(ports[i], strPort, 10));
-    // printf("%s  ", strPort);
   }
-  // printf("\n");
+
   struct sockaddr_storage clientStorage;
   struct sockaddr *clientAddr;
   clientAddr = (struct sockaddr *)&clientStorage;
@@ -62,7 +47,6 @@ int main(int argc, char **argv)
   socklen_t storageSize = sizeof(struct sockaddr_storage);
 
   char buffer[BUFFER_SIZE];
-
   memset(clientAddr, 0, sizeof(clientStorage));
 
   int count = recvfrom(sockets[0], buffer, BUFFER_SIZE, 0, clientAddr, &addrSize);
@@ -78,11 +62,6 @@ int main(int argc, char **argv)
   {
     strcpy(buffer, "game started: path");
     count = sendto(sockets[i], buffer, sizeof(buffer), 0, clientAddr, storageSize);
-    // if (count != strlen(buffer))
-    // {
-    //   logExit("send");
-    // }
-    // printf("[+]Data Sent: %s by server %d\n", buffer, ports[i]);
   }
 
   fflush(stdin);
@@ -361,7 +340,7 @@ int main(int argc, char **argv)
       double doubleTime = ((double)timer) / CLOCKS_PER_SEC;
       printf("Timer: %f", doubleTime);
 
-      int timeTaken = (int) doubleTime;
+      int timeTaken = (int)doubleTime;
 
       char finalHits[5];
       strcpy(buffer, itoa(pokemonHitted, finalHits, 10));
