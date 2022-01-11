@@ -30,7 +30,8 @@ The servers can receive the following commands:
         z is the id of the attacker Pokémon
     quit breaks the connection
     every other command sent to the servers is answered with the game over message
-        the game over message is game over i j k
+        the game over message is: game over a i j k
+            a is 0 if the game finished in turn 50, otherwise is 1
             i is the successfully hits that defenders Pokémon did
             j is how many Pokémon reached the Pokédex
             k is the time that it took

@@ -81,7 +81,7 @@ int main(int argc, char **argv)
       {
         break;
       }
-      printf("%s\n", buffer);
+      printf("%s\n\n", buffer);
     }
     else if (strcasecmp(strtok(buffer, " "), "getturn") == 0)
     {

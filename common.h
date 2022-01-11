@@ -16,8 +16,10 @@
 #define FALSE 0
 #define TRUE 1
 #define TYPES_OF_POKEMON 3
+#define NUMBER_OF_SERVERS 4
 #define BOARD_COLUMNS 4
 #define BOARD_ROWS 4
+#define NUMBER_MAX_POKEMON 300
 #define MILTON "mewtwo"
 #define LUGIA "lugia"
 #define ZUBAT "zubat"

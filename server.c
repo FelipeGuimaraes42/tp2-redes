@@ -8,33 +8,21 @@ int main(int argc, char **argv)
   }
 
   char *protocol = argv[1];
-  int port = atoi(argv[2]);
+  int firstPort = atoi(argv[2]);
 
-  /*
-    the game board will be a matrix and
-    it will store the pokemon ids for the attackers
-    and it will store a positive number for defenders
-  */
-  int attackersBoard[BOARD_ROWS][BOARD_COLUMNS];
-  memset(attackersBoard, -1, sizeof(attackersBoard[0][0]) * BOARD_ROWS * BOARD_COLUMNS);
-
-  int defendersBoard[BOARD_ROWS][BOARD_COLUMNS];
-  memset(defendersBoard, -1, sizeof(defendersBoard[0][0]) * BOARD_ROWS * BOARD_COLUMNS);
-
+  // for a real random
   srand(time(NULL));
 
-  struct Pokemon pokemons[300];
-  int numberOfPokemon = 0;
+  int ports[NUMBER_OF_SERVERS] = {0};
+  int sockets[NUMBER_OF_SERVERS];
 
-  int sockets[4];
-  int ports[4] = {0};
-
-  for (int i = 0; i < 4; i++)
+  // The ports need to be sequential
+  for (int i = 0; i < NUMBER_OF_SERVERS; i++)
   {
-    ports[i] = port + i;
+    ports[i] = firstPort + i;
   }
 
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < NUMBER_OF_SERVERS; i++)
   {
     char strPort[10];
     sockets[i] = createServerSocket(protocol, itoa(ports[i], strPort, 10));
@@ -58,7 +46,7 @@ int main(int argc, char **argv)
 
   memset(buffer, 0, BUFFER_SIZE);
 
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < NUMBER_OF_SERVERS; i++)
   {
     strcpy(buffer, "game started: path");
     count = sendto(sockets[i], buffer, sizeof(buffer), 0, clientAddr, storageSize);
@@ -66,11 +54,26 @@ int main(int argc, char **argv)
 
   fflush(stdin);
 
+  /*
+    the game board will be a matrix and
+    it will store the pokemon ids for the attackers
+    and it will store a positive number for defenders
+  */
+  int attackersBoard[BOARD_ROWS][BOARD_COLUMNS];
+  memset(attackersBoard, -1, sizeof(attackersBoard[0][0]) * BOARD_ROWS * BOARD_COLUMNS);
+
+  int defendersBoard[BOARD_ROWS][BOARD_COLUMNS];
+  memset(defendersBoard, -1, sizeof(defendersBoard[0][0]) * BOARD_ROWS * BOARD_COLUMNS);
+
+  // As I don't like pointers, I setted the max number of Poké to NUMBER_MAX_POKEMON
+  struct Pokemon pokemons[NUMBER_MAX_POKEMON];
+  int numberOfPokemon = 0;
+
   int pokemonHitted = 0;
   int pokemonWhoReachedPokedex = 0;
   int intTurn = 0;
-  clock_t timer;
-  timer = clock();
+
+  clock_t timer = clock();
 
   while (1)
   {
@@ -85,6 +88,8 @@ int main(int argc, char **argv)
       logExit("empty message");
     }
     printf("[+]Data Received: %s", buffer);
+
+    // Makes a copy of the buffer to future manipulations
     strcpy(receivedMessage, buffer);
 
     if (strcasecmp(buffer, "quit\n") == 0)
@@ -95,23 +100,23 @@ int main(int argc, char **argv)
     else if (strcasecmp(buffer, "getdefenders\n") == 0)
     {
       memset(buffer, 0, BUFFER_SIZE);
-      // Pokemon fora da borda atacam em suas posições e num posição acima
-      // Pokémon na linha 0 ou 3 atacam somente suas linhas
+      // Pokemon at 1st or 4th only can attack where they are
+      // Pokémon at 2nd of 3rd can attack where they are and a row above
       strcpy(buffer, "defender [[0, 0], [0, 2], [1, 3], [2, 1], [3, 2], [3, 3]]");
       sendto(sockets[3], buffer, sizeof(buffer), 0, clientAddr, storageSize);
     }
 
     else if (strcasecmp(strtok(buffer, " "), "getturn") == 0)
     {
-      // first wave
       char turn[3];
       strcpy(turn, strtok(NULL, " \n"));
 
       defendersBoard[0][0] = defendersBoard[0][2] = defendersBoard[1][3] = defendersBoard[2][1] =
           defendersBoard[3][2] = defendersBoard[3][3] = 1;
+      // first turn
       if (strcmp(turn, "0") == 0)
       {
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < BOARD_ROWS; i++)
         {
           generateRandomPokemon(&(pokemons[numberOfPokemon]), numberOfPokemon);
           attackersBoard[i][0] = numberOfPokemon;
@@ -120,11 +125,12 @@ int main(int argc, char **argv)
           strcpy(message, "turn ");
           strcat(message, turn);
           strcat(message, "\nfixed location 1\n");
-          char pokeId[4];
-          char pokeHits[2];
+
           char pokeName[10];
           strcpy(pokeName, pokemons[i].name);
+          char pokeId[4];
           strcpy(pokeId, itoa(pokemons[i].id, pokeId, 10));
+          char pokeHits[2];
           strcpy(pokeHits, itoa(pokemons[i].hits, pokeHits, 10));
 
           strcat(message, pokeId);
@@ -142,13 +148,14 @@ int main(int argc, char **argv)
           sendto(sockets[3], message, sizeof(message), 0, clientAddr, storageSize);
         }
       }
+      // other turns
       else
       {
         // Aqui o que eu tenho que fazer é o seguinte: andar com os pokemon vivos uma casa
         //  para a direita e spawnar novos monstros nas primeiras casas
-        for (int i = 3; i >= 0; i--)
+        for (int i = BOARD_ROWS - 1; i >= 0; i--)
         {
-          for (int j = 3; j >= 0; j--)
+          for (int j = BOARD_COLUMNS - 1; j >= 0; j--)
           {
             if (attackersBoard[i][j] >= 0)
             {
@@ -165,14 +172,14 @@ int main(int argc, char **argv)
             }
           }
         }
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < BOARD_ROWS; i++)
         {
           generateRandomPokemon(&(pokemons[numberOfPokemon]), numberOfPokemon);
           attackersBoard[i][0] = numberOfPokemon;
           char message[BUFFER_SIZE];
           memset(message, 0, BUFFER_SIZE);
-          int index = intTurn * 4 + i;
-          for (int j = 0; j < 4; j++)
+          int index = intTurn * BOARD_ROWS + i;
+          for (int j = 0; j < BOARD_COLUMNS; j++)
           {
 
             char fixedLocation[2];
@@ -185,12 +192,11 @@ int main(int argc, char **argv)
             {
               if ((pokemons[index].maxHits - pokemons[index].hits) > 0)
               {
-
-                char pokeId[4];
-                char pokeHits[2];
                 char pokeName[10];
                 strcpy(pokeName, pokemons[index].name);
+                char pokeId[4];
                 strcpy(pokeId, itoa(pokemons[index].id, pokeId, 10));
+                char pokeHits[2];
                 strcpy(pokeHits, itoa(pokemons[index].hits, pokeHits, 10));
 
                 strcat(message, pokeId);
@@ -209,7 +215,7 @@ int main(int argc, char **argv)
             {
               strcat(message, "\n");
             }
-            index -= 4;
+            index -= BOARD_ROWS;
           }
           numberOfPokemon++;
           sendto(sockets[3], message, sizeof(message), 0, clientAddr, storageSize);
@@ -230,8 +236,6 @@ int main(int argc, char **argv)
       int intRow = atoi(row);
       int intColumn = atoi(column);
       int intId = atoi(id);
-
-      // printf("%d\n", defendersBoard[intRow][intColumn]);
 
       if ((defendersBoard[intRow][intColumn] == 1) && (intId >= 0))
       {
@@ -261,7 +265,7 @@ int main(int argc, char **argv)
         else
         {
           // Verificar se o Pokémon de defesa consegue acertar esse cara
-          if (intRow == 0 || intRow == 3)
+          if (intRow == 0 || intRow == BOARD_ROWS - 1)
           {
             // So consegue atacar onde ele está
             if (intRow == pokeRow && intColumn == pokeColumn)
@@ -338,7 +342,7 @@ int main(int argc, char **argv)
       timer = clock() - timer;
       // int timeTaken = (int)(((double)timer)/CLOCKS_PER_SEC);
       double doubleTime = ((double)timer) / CLOCKS_PER_SEC;
-      printf("Timer: %f", doubleTime);
+      //printf("Timer: %f", doubleTime);
 
       int timeTaken = (int)doubleTime;
 
@@ -357,7 +361,7 @@ int main(int argc, char **argv)
     }
   }
 
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < NUMBER_OF_SERVERS; i++)
   {
     close(sockets[i]);
   }
