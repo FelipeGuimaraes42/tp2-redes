@@ -61,44 +61,6 @@ int addrParse(const char *addrStr, const char *portStr,
   return -1;
 }
 
-void addrToStr(const struct sockaddr *addr, char *str, size_t strSize)
-{
-  int version;
-  char addrStr[INET6_ADDRSTRLEN + 1] = "";
-  uint16_t port;
-
-  if (addr->sa_family == AF_INET)
-  {
-    version = 4;
-    struct sockaddr_in *addr4 = (struct sockaddr_in *)addr;
-    if (!inet_ntop(AF_INET, &(addr4->sin_addr), addrStr,
-                   INET6_ADDRSTRLEN + 1))
-    {
-      logExit("ntop");
-    }
-    port = ntohs(addr4->sin_port); // network to host short
-  }
-  else if (addr->sa_family == AF_INET6)
-  {
-    version = 6;
-    struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *)addr;
-    if (!inet_ntop(AF_INET6, &(addr6->sin6_addr), addrStr,
-                   INET6_ADDRSTRLEN + 1))
-    {
-      logExit("ntop");
-    }
-    port = ntohs(addr6->sin6_port); // network to host short
-  }
-  else
-  {
-    logExit("unknown protocol family.");
-  }
-  if (str)
-  {
-    snprintf(str, strSize, "IPv%d %s %hu", version, addrStr, port);
-  }
-}
-
 int serverSockaddrInit(const char *proto, const char *portStr,
                        struct sockaddr_storage *storage)
 {
