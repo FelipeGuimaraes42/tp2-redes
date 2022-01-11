@@ -48,6 +48,7 @@ int main(int argc, char **argv)
     printf("%s %d\n", buffer, response);
     response++;
   }
+  printf("\n");
 
   int turn = 0;
 
@@ -57,6 +58,10 @@ int main(int argc, char **argv)
     printf("> ");
     fgets(buffer, BUFFER_SIZE - 1, stdin);
     printf("< ");
+
+    if(turn >= 50){
+      strcpy(buffer, "game over");
+    }
 
     int count = sendto(clientSock, buffer, strlen(buffer), 0, addr, storageSize);
     if (count != strlen(buffer))
@@ -92,7 +97,8 @@ int main(int argc, char **argv)
         int count = recvfrom(clientSock, buffer, BUFFER_SIZE, 0, addr, &addrSize);
         if (count == 0)
         {
-          break;
+          sendto(clientSock, "quit\n", strlen("quit\n"), 0, addr, storageSize);
+          logExit("receive");
         }
         printf("base %d\n", i + 1);
         printf("%s", buffer);
@@ -115,7 +121,12 @@ int main(int argc, char **argv)
       {
         break;
       }
-      printf("gameover %s\n", buffer);
+      int status = 1;
+      if (turn >= 50)
+      {
+        status = 0;
+      }
+      printf("gameover %d %s\n\n", status, buffer);
       sendto(clientSock, "quit\n", strlen("quit\n"), 0, addr, storageSize);
       break;
     }

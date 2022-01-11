@@ -15,14 +15,14 @@ The servers can receive the following commands:
         this command also makes the servers send to the client a full attackers position info
         the info is:
             the base, numbered one to four
-            the turn, zero to fourty nine
+            the turn, zero to forty nine
             fixed location, one to four
             and the info of a Pokémon a b c
                 a is the id
                 b is the name
                 c is how many shots it has taken
         x must be a natural number or zero
-        x must follows an order, i.e., if the user tries to send 1 before 0, the game closes
+        x must follow an order, i.e., if the user tries to send 1 before 0, the game closes
     shot x y z
         this command makes the defender Pokémon shots in an attacker Pokémon
         x is the row that the defender Pokémon is
@@ -31,6 +31,6 @@ The servers can receive the following commands:
     quit breaks the connection
     every other command sent to the servers is answered with the game over message
         the game over message is game over i j k
-            i is the successfuly hits that defenders Pokémon did
+            i is the successfully hits that defenders Pokémon did
             j is how many Pokémon reached the Pokédex
             k is the time that it took
