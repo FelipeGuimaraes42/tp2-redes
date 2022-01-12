@@ -73,7 +73,8 @@ int main(int argc, char **argv)
   int pokemonWhoReachedPokedex = 0;
   int intTurn = 0;
 
-  clock_t timer = clock();
+  struct timeval startTime;
+  gettimeofday(&startTime, NULL);
 
   while (1)
   {
@@ -151,8 +152,8 @@ int main(int argc, char **argv)
       // other turns
       else
       {
-        // Aqui o que eu tenho que fazer é o seguinte: andar com os pokemon vivos uma casa
-        //  para a direita e spawnar novos monstros nas primeiras casas
+        // walk with Pokémon to the next fixed location
+        // and spawn new monsters at first base at every fixed location
         for (int i = BOARD_ROWS - 1; i >= 0; i--)
         {
           for (int j = BOARD_COLUMNS - 1; j >= 0; j--)
@@ -264,19 +265,14 @@ int main(int argc, char **argv)
         }
         else
         {
-          // Verificar se o Pokémon de defesa consegue acertar esse cara
+          // Can the defense pokémon hit that attack Pokémon?
           if (intRow == 0 || intRow == BOARD_ROWS - 1)
           {
-            // So consegue atacar onde ele está
+            // Only can attack where it is
             if (intRow == pokeRow && intColumn == pokeColumn)
             {
               pokemons[intId].hits++;
               printf("%s was hitted! It has %d hits left\n", pokemons[intId].name, pokemons[intId].maxHits - pokemons[intId].hits);
-              if (pokemons->maxHits - pokemons->hits == 0)
-              {
-                printf("%s is out of combat!\n", pokemons[intId].name);
-                attackersBoard[pokeRow][pokeColumn] = -1;
-              }
               pokemonHitted++;
               strcpy(status, "0");
             }
@@ -287,16 +283,11 @@ int main(int argc, char **argv)
           }
           else
           {
-            // Consegue atacar onde ele esta e uma linha acima
+            // can attack where it is and one base (row) above
             if ((intRow == pokeRow || intRow == (pokeRow + 1)) && intColumn == pokeColumn)
             {
               pokemons[intId].hits++;
               printf("%s was hitted! It has %d hits left\n", pokemons[intId].name, pokemons[intId].maxHits - pokemons[intId].hits);
-              if (pokemons->maxHits - pokemons->hits == 0)
-              {
-                printf("%s is out of combat!\n", pokemons[intId].name);
-                attackersBoard[pokeRow][pokeColumn] = -1;
-              }
               pokemonHitted++;
               strcpy(status, "0");
             }
@@ -339,12 +330,10 @@ int main(int argc, char **argv)
     {
       memset(buffer, 0, BUFFER_SIZE);
 
-      timer = clock() - timer;
-      // int timeTaken = (int)(((double)timer)/CLOCKS_PER_SEC);
-      double doubleTime = ((double)timer) / CLOCKS_PER_SEC;
-      //printf("Timer: %f", doubleTime);
+      struct timeval endTime;
+      gettimeofday(&endTime, NULL);
 
-      int timeTaken = (int)doubleTime;
+      int timeTaken = endTime.tv_sec - startTime.tv_sec;
 
       char finalHits[5];
       strcpy(buffer, itoa(pokemonHitted, finalHits, 10));

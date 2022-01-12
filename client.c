@@ -59,7 +59,8 @@ int main(int argc, char **argv)
     fgets(buffer, BUFFER_SIZE - 1, stdin);
     printf("< ");
 
-    if(turn >= 50){
+    if (turn >= 50)
+    {
       strcpy(buffer, "game over");
     }
 
